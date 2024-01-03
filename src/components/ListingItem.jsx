@@ -3,8 +3,9 @@ import {Link} from "react-router-dom";
 import bedIcon from '../assets/svg/bedIcon.svg';
 import mileage from '../assets/svg/mileage.svg';
 import {ReactComponent as DeleteIcon} from "../assets/svg/deleteIcon.svg";
+import {ReactComponent as EditIcon} from "../assets/svg/editIcon.svg";
 
-function ListingItem({listing, id, onDelete}) {
+function ListingItem({listing, id, onEdit, onDelete}) {
     return (
         <li className='categoryListing'>
             <Link to={`/category/${listing.type}/${id}`} className='categoryListingLink'>
@@ -27,6 +28,9 @@ function ListingItem({listing, id, onDelete}) {
                     </div>
                 </div>
             </Link>
+            
+            {onEdit && (<EditIcon className='editIcon' style={{marginRight: '5px'}} fill='green' onClick={() => onEdit()}/>)}
+           
             {onDelete && (
                 <DeleteIcon className='removeIcon' fill='rgb(231, 76, 60)' onClick={()=>onDelete(listing.id, listing.name)}/>
             )}

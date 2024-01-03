@@ -4,6 +4,7 @@ import rentCategoryImage from '../assets/jpg/rentCategoryImage.jpg';
 import sellCategoryImage from '../assets/jpg/sellCategoryImage.jpg'
 import {useAuthStatus} from "../hooks/useAuthStatus";
 import {getAuth, onAuthStateChanged} from "firebase/auth";
+import Slider from '../components/Slider';
 function Explore(props) {
     const {loggedIn} = useAuthStatus();
     const [name, setName] = useState('');
@@ -21,6 +22,7 @@ function Explore(props) {
         return () => {
             isMounted.current=false;
         };
+        // eslint-disable-next-line
     }, [isMounted]);
 
 /*    useEffect(() => {
@@ -37,6 +39,8 @@ function Explore(props) {
             <header>
                 <p className='pageHeader'> {loggedIn ? `Welcome ${name}` : 'Explore'}</p>
             </header>
+
+            <Slider/>
 
             <main>
                 <p className="exploreCategoryHeading">Categories</p>

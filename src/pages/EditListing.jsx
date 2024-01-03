@@ -1,14 +1,16 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {getAuth, onAuthStateChanged} from "firebase/auth";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import {addDoc,collection,serverTimestamp} from "firebase/firestore";
+import {doc, getDoc, updateDoc, serverTimestamp} from "firebase/firestore";
 import {db} from "../firebase.config";
 import {v4 as uuidv4} from 'uuid';
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {toast} from "react-toastify";
 import Spinner from "../components/Spinner";
 
-function CreateListing(props) {
+function EditListing(props) {
+    const [listings, setListings] = useState(null);
+    const params = useParams();
     // eslint-disable-next-line
     const [geolocationEnabled, setGeolocationEnabled] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -52,6 +54,7 @@ function CreateListing(props) {
     const auth = getAuth();
     const isMounted = useRef(true);
 
+    // setting formdata and useRef
     useEffect(() => {
         if (isMounted) {
             onAuthStateChanged(auth, (user) => {
@@ -67,6 +70,40 @@ function CreateListing(props) {
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isMounted]);
+
+    // If user is not authorized to edit this listing
+
+    useEffect(() => {
+        if(listings && listings.userRef !== auth.currentUser.uid){
+            toast.error('You are not authorized to edit');
+            navigate('/');
+        }
+        // eslint-disable-next-line
+    }, []);
+
+    // fetchlistings to edit
+    useEffect(() => {
+       setLoading(true);
+
+       const fetchListing = async () => {
+            const docRef = doc(db,'listings', params.listingId);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                // console.log("🚀 ~ file: EditListing.jsx:80 ~ fetchListing ~ docSnap:", docSnap.data())
+                setListings(docSnap.data());
+                setFormData({...docSnap.data(), address: docSnap.data().location });
+                setLoading(false);
+            }else{
+                navigate('/');
+                toast.error('Listing not found');
+            }
+       }
+
+       fetchListing();
+       // eslint-disable-next-line
+    }, []);
+    
 
     const onSubmit = async (e) => {
         e.preventDefault();
@@ -175,7 +212,9 @@ function CreateListing(props) {
         // if there is no offer we will not keep discounted price . !formDataCopy.offer
         !formDataCopy.offer && delete formDataCopy.discountedPrice;
 
-        const docRef = await addDoc(collection(db,'listings'),formDataCopy);
+        // UPDATE THE LISTING
+        const docRef  = doc(db,'listings',params.listingId);
+        await updateDoc(docRef, formDataCopy);
 
         setLoading(false);
 
@@ -215,7 +254,7 @@ function CreateListing(props) {
     return (
         <div className='profile'>
             <header>
-                <p className='pageHeader'>Create Listing</p>
+                <p className='pageHeader'>Edit Listing</p>
             </header>
             <main>
                 <form onSubmit={onSubmit}>
@@ -249,6 +288,19 @@ function CreateListing(props) {
 
                     <div className='formRooms flex'>
                         <div>
+                            <label className='formLabel'>Weight (kg)</label>
+                            <input
+                                className='formInputSmall'
+                                type='number'
+                                id='weight'
+                                value={weight}
+                                onChange={onMutate}
+                                min='500'
+                                max='10000'
+                                required
+                            />
+                        </div>
+                        <div>
                             <label className='formLabel'>Fuel</label>
                             <input
                                 className='formInputSmall'
@@ -259,19 +311,6 @@ function CreateListing(props) {
                                 onChange={onMutate}
                                 min='1'
                                 max='6'
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className='formLabel'>Weight (kg)</label>
-                            <input
-                                className='formInputSmall'
-                                type='number'
-                                id='weight'
-                                value={weight}
-                                onChange={onMutate}
-                                min='500'
-                                max='10000'
                                 required
                             />
                         </div>
@@ -464,7 +503,7 @@ function CreateListing(props) {
                         required
                     />
                     <button type='submit' className='primaryButton createListingButton'>
-                        Create Listing
+                        Edit Listing
                     </button>
                 </form>
             </main>
@@ -472,4 +511,4 @@ function CreateListing(props) {
     );
 }
 
-export default CreateListing;
+export default EditListing;

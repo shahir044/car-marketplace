@@ -1,19 +1,33 @@
 import React, {useState} from 'react';
 import {getAuth, updateProfile} from "firebase/auth";
+import { 
+    updateDoc,
+    collection,
+    getDocs,
+    query,
+    orderBy,
+    where,
+    deleteDoc,
+} from 'firebase/firestore';
 import {Link, useNavigate} from "react-router-dom";
 import {useEffect} from "react";
-import {doc, getDoc, updateDoc} from 'firebase/firestore';
+import {doc, getDoc} from 'firebase/firestore';
 import {db} from '../firebase.config';
 import {toast} from "react-toastify";
 import Spinner from "../components/Spinner";
 import arrowRight from "../assets/svg/keyboardArrowRightIcon.svg";
 import homeIcon from "../assets/svg/homeIcon.svg";
+import ListingItem from '../components/ListingItem';
 function Profile() {
     const auth = getAuth();
     const navigate = useNavigate();
 
+    const [listings, setListings] = useState(null);
     const [changeDetails, setChangeDetails] = useState(false);
-    const [formData, setFormData] = useState([]);
+    const [formData, setFormData] = useState({
+        name: auth.currentUser.displayName,
+        email: auth.currentUser.email,
+    });
     const [loading, setLoading] = useState(true);
 
     useEffect(()=>{
@@ -42,7 +56,10 @@ function Profile() {
             }
         });
         console.log(formData);*/
+
+        // eslint-disable-next-line
     },[])
+    
     // console.log('Hello here')
 
     // getDoc(userRef).then((doc)=>{
@@ -60,6 +77,29 @@ function Profile() {
     });*/
 
     const {name,email,emp_no} = formData;
+
+    useEffect(() => {
+        const fetchUserListings = async () => {
+            const listingsRef = collection(db,'listings');
+            const q = query(listingsRef, where('userRef','==', auth.currentUser.uid), orderBy('timestamp','desc'));
+            const querySnap = await getDocs(q);
+
+            let listings = [];
+
+            querySnap.forEach((doc) => {
+                return listings.push({
+                    id: doc.id,
+                    data: doc.data(),
+                })
+            });
+
+            setListings(listings);
+            setLoading(false);
+        }
+        
+        fetchUserListings();
+    }, [auth.currentUser.uid]);
+
     const onLogout = () => {
       auth.signOut();
       navigate('/sign-in');
@@ -93,6 +133,22 @@ function Profile() {
           ...prevState,
           [e.target.id]: e.target.value,
       }))
+    }
+
+    const onEditListing = async (listingId) => {
+        navigate(`/edit-listing/${listingId}`);
+    }
+
+    const onDelete = async (listingId) => {
+        if (window.confirm("Are yousure you want to delete?")) {
+            await deleteDoc(doc(db,'listings',listingId));
+
+            const updatedListings = listings.filter((list) => (
+                list.id !== listingId
+            ))
+            setListings(updatedListings);
+            toast.success('Successfully deleted');
+        }
     }
 
     return (
@@ -147,6 +203,18 @@ function Profile() {
                     <p>Sell or Rent your Car</p>
                     <img src={arrowRight} alt="right"/>
                 </Link>
+
+                {!loading && listings.length > 0 && (
+                    <>
+                        <p className='listingText'>Your Listings</p>
+                        <ul className='listingsList'>
+                            {listings.map((list)=>(
+                                <ListingItem key={list.id} listing={list.data} id={list.id} onDelete={() => onDelete(list.id)} onEdit={() => onEditListing(list.id)}/>
+                            ))}
+                        </ul>
+                    </>
+                )}
+
             </main>
         </div>
     );
