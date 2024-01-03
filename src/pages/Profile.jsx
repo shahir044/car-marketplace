@@ -47,34 +47,10 @@ function Profile() {
             }
         }
         fetchUserData();
-        console.log(formData);
-        /*const userRef = doc(db,"users",auth.currentUser.uid);
-        const userSnap = getDoc(userRef);
-        userSnap.then((doc)=>{
-            if (doc.exists()){
-                setFormData(doc.data());
-            }
-        });
-        console.log(formData);*/
+        // console.log(formData);
 
         // eslint-disable-next-line
     },[])
-    
-    // console.log('Hello here')
-
-    // getDoc(userRef).then((doc)=>{
-    //    if (doc.exists){
-    //        const userDetails = doc.data();
-    //        // console.log(userDetails);
-    //    }else {
-    //        // console.log("No user found");
-    //    }
-    // });
-
-    /*const [formData,setFormData] = useState({
-        name: auth.currentUser.displayName,
-        email: auth.currentUser.email,
-    });*/
 
     const {name,email,emp_no} = formData;
 
