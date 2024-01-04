@@ -180,7 +180,7 @@ function Profile() {
                     <img src={arrowRight} alt="right"/>
                 </Link>
 
-                {!loading && listings.length > 0 && (
+                {!loading && listings !== null && (
                     <>
                         <p className='listingText'>Your Listings</p>
                         <ul className='listingsList'>
