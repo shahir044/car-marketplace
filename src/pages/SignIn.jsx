@@ -88,7 +88,6 @@ function SignIn() {
                     <Link to='/sign-up' className='registerLink'>
                         Don't have an account? Sign up here.
                     </Link>
-
                     <OAuth/>
                 </main>
             </div>

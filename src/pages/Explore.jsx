@@ -40,7 +40,7 @@ function Explore(props) {
                 <p className='pageHeader'> {loggedIn ? `Welcome ${name}` : 'Explore'}</p>
             </header>
 
-            <Slider/>
+            <Slider />
 
             <main>
                 <p className="exploreCategoryHeading">Categories</p>

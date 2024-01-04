@@ -45,6 +45,7 @@ function Category(props) {
               setLoading(false);
           }catch (error) {
               toast.error(error);
+              setLoading(false);
           }
         }
 

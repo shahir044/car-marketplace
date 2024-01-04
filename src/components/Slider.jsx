@@ -33,17 +33,19 @@ function Slider() {
         })
       })
       setListings(listings);
+      // console.log(listings);
       setLoading(false);
     }
     fetchListing();
   },[]);
 
+
   if (loading) {
-    return <Spinner/>;
+    return <Spinner />
   }
 
-  if (listings.lenght === 0) {
-    return <></>;
+  if (listings.length === 0) {
+    return <></>
   }
 
   return (
@@ -51,7 +53,7 @@ function Slider() {
       <p className="exploreHeading">Recommended</p>
 
       <Swiper 
-      slidesPerView={1} p
+      slidesPerView={1}
       pagination={{clickable: true}}
       modules={[Autoplay, Navigation, Pagination, Scrollbar, A11y]}
       autoplay={{
@@ -60,7 +62,7 @@ function Slider() {
       }}
       >
         {listings.map(({data,id}) => (
-          <SwiperSlide key={id} onClick={() => navigate(`/category/${data.type}/${id}}`)}>
+          <SwiperSlide key={id} onClick={() => navigate(`/category/${data.type}/${id}`)}>
             <div style={{background: `url(${data.imgUrls[0]}) center no-repeat`, backgroundSize: 'cover', height: '200px'}} className='swiperSlideDiv'>
               <p className='swiperSlideText'>{data.name}</p>
               <p className='swiperSlidePrice'>${data.discountedPrice ?? data.regularPrice}

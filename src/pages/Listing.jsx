@@ -13,6 +13,7 @@ import { getAuth } from 'firebase/auth';
 import { db } from '../firebase.config';
 import Spinner from '../components/Spinner';
 import shareIcon from '../assets/svg/shareIcon.svg';
+import {toast} from 'react-toastify';
 
 function Listing() {
     const [listing , setListing ] = useState(null);
@@ -25,13 +26,21 @@ function Listing() {
 
     useEffect(() => {
         const fetchListing = async () => {
-          const docRef = doc(db, 'listings', params.listingId)
-          const docSnap = await getDoc(docRef)
-    
-          if (docSnap.exists()) {
-            console.log("🚀 ~ file: Listing.jsx:25 ~ fetchListing ~ docSnap:", docSnap.data())
-            setListing(docSnap.data())
-            setLoading(false)
+          try {
+            const docRef = doc(db, 'listings', params.listingId)
+            const docSnap = await getDoc(docRef)
+      
+            if (docSnap.exists()) {
+              console.log("🚀 ~ file: Listing.jsx:25 ~ fetchListing ~ docSnap:", docSnap.data())
+              setListing(docSnap.data())
+              setLoading(false)
+            }else{
+              toast.error("no listing found");
+              setLoading(false)
+            }
+          } catch (error) {
+            
+            toast.error(error);
           }
         }
     
